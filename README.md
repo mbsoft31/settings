@@ -1,84 +1,140 @@
-# This is my package settings
+# Settings Package for PHP
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/mbsoft31/settings.svg?style=flat-square)](https://packagist.org/packages/mbsoft31/settings)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/mbsoft31/settings/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/mbsoft31/settings/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/mbsoft31/settings/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/mbsoft31/settings/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/mbsoft31/settings.svg?style=flat-square)](https://packagist.org/packages/mbsoft31/settings)  
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/mbsoft31/settings/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/mbsoft31/settings/actions?query=workflow%3Arun-tests+branch%3Amain)  
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/mbsoft31/settings/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/mbsoft31/settings/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)  
 [![Total Downloads](https://img.shields.io/packagist/dt/mbsoft31/settings.svg?style=flat-square)](https://packagist.org/packages/mbsoft31/settings)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+## Introduction
 
-## Support us
+This package provides a simple and extensible way to manage application settings in various formats like JSON and YAML. It's designed to work seamlessly with Laravel and allows saving, loading, and managing configuration settings easily.
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/settings.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/settings)
+## Features
 
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
+- Save and load application settings in JSON or YAML formats.
+- Easily extendable for additional formats.
+- Works out of the box with Laravel.
+- Configurable storage paths.
 
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+---
 
 ## Installation
 
-You can install the package via composer:
+### Step 1: Install via Composer
+
+You can install the package using Composer:
 
 ```bash
 composer require mbsoft31/settings
 ```
 
-You can publish and run the migrations with:
+### Step 2: Publish Configuration & Migrations
+
+Publish the migrations and configuration files:
 
 ```bash
 php artisan vendor:publish --tag="settings-migrations"
 php artisan migrate
-```
 
-You can publish the config file with:
-
-```bash
 php artisan vendor:publish --tag="settings-config"
 ```
 
-This is the contents of the published config file:
+The configuration file (`config/settings.php`) will look like this:
 
 ```php
 return [
+    // Define default paths or custom settings here
 ];
 ```
 
-Optionally, you can publish the views using
+Optionally, you can publish views using:
 
 ```bash
 php artisan vendor:publish --tag="settings-views"
 ```
 
+---
+
 ## Usage
 
+### Example: Save and Load JSON Settings
+
+Here's a quick example of how to use the package to manage your application settings:
+
 ```php
-$settings = new Mouadh Bekhouche\Settings();
-echo $settings->echoPhrase('Hello, Mouadh Bekhouche!');
+use MouadhBekhouche\Settings;
+
+// Initialize settings
+$settings = new Settings([
+    'app.name' => 'My Application',
+    'app.env' => 'local',
+]);
+
+// Save settings to a file
+$settings->saveToFile(storage_path('settings.json'), \MouadhBekhouche\Settings\ConfigFormat::JSON);
+
+// Load settings from a file
+$loadedSettings = Settings::loadFromFile(storage_path('settings.json'), \MouadhBekhouche\Settings\ConfigFormat::JSON);
+
+echo $loadedSettings->get('app.name'); // Outputs: "My Application"
 ```
 
+---
+
 ## Testing
+
+Run the test suite using the following command:
 
 ```bash
 composer test
 ```
 
-## Changelog
+To ensure the directory structure for file-based tests is correctly created during CI or local development, the package includes setup logic in the tests.
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+---
+
+## Advanced Usage
+
+### Supported Formats
+
+Currently, the package supports:
+
+- JSON
+- YAML
+
+You can extend the package to support additional formats by adding new serialization and deserialization methods.
+
+### Custom Configuration
+
+You can modify the `settings.php` config file to define default file paths or application-specific settings.
+
+---
 
 ## Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+We welcome contributions! Please see the [CONTRIBUTING](CONTRIBUTING.md) guide for details.
+
+---
 
 ## Security Vulnerabilities
 
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
+If you discover any security-related issues, please report them via the [Security Policy](../../security/policy).
+
+---
+
+## Changelog
+
+Refer to the [CHANGELOG](CHANGELOG.md) for recent updates.
+
+---
 
 ## Credits
 
 - [Mouadh Bekhouche](https://github.com/mbsoft31)
 - [All Contributors](../../contributors)
 
+---
+
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+This package is open-source software licensed under the [MIT License](LICENSE.md).
