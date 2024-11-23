@@ -22,6 +22,7 @@
     </testsuites>
     <logging>
         <junit outputFile="build/report.junit.xml"/>
+        <log type="coverage-clover" target="coverage.xml"/>
     </logging>
     <source>
         <include>
