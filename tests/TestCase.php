@@ -1,10 +1,10 @@
 <?php
 
-namespace Mouadh Bekhouche\Settings\Tests;
+namespace MBsoft\Settings\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Mouadh Bekhouche\Settings\SettingsServiceProvider;
+use MBsoft\Settings\SettingsServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -13,18 +13,18 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Mouadh Bekhouche\\Settings\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'MBsoft\\Settings\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
     }
 
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
             SettingsServiceProvider::class,
         ];
     }
 
-    public function getEnvironmentSetUp($app)
+    public function getEnvironmentSetUp($app): void
     {
         config()->set('database.default', 'testing');
 

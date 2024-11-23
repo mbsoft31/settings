@@ -30,6 +30,9 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
      */
     public function get(string $key, mixed $default = null): mixed
     {
+        if (key_exists($key, $this->settings)) {
+            return $this->settings[$key];
+        }
         return $this->resolveDotNotation($key, $this->settings) ?? $default;
     }
 
@@ -49,6 +52,9 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
 
     public function has(string $key): bool
     {
+        if (key_exists($key, $this->settings)) {
+            return true;
+        }
         return $this->resolveDotNotation($key, $this->settings) !== null;
     }
 
@@ -56,6 +62,11 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
     {
         if ($this->immutable) {
             throw new RuntimeException('Cannot modify immutable configuration.');
+        }
+
+        if (key_exists($key, $this->settings)) {
+            unset($this->settings[$key]);
+            return true;
         }
 
         return $this->removeDotNotation($key, $this->settings);

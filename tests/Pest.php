@@ -1,5 +1,6 @@
 <?php
 
-use Mouadh Bekhouche\Settings\Tests\TestCase;
+
+use MBsoft\Settings\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);
