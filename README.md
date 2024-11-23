@@ -62,7 +62,7 @@ php artisan vendor:publish --tag="settings-views"
 Here's a quick example of how to use the package to manage your application settings:
 
 ```php
-use MouadhBekhouche\Settings;
+use MBsoft\Settings;
 
 // Initialize settings
 $settings = new Settings([
@@ -71,10 +71,10 @@ $settings = new Settings([
 ]);
 
 // Save settings to a file
-$settings->saveToFile(storage_path('settings.json'), \MouadhBekhouche\Settings\ConfigFormat::JSON);
+$settings->saveToFile(storage_path('settings.json'), \MBsoft\Settings\ConfigFormat::JSON);
 
 // Load settings from a file
-$loadedSettings = Settings::loadFromFile(storage_path('settings.json'), \MouadhBekhouche\Settings\ConfigFormat::JSON);
+$loadedSettings = Settings::loadFromFile(storage_path('settings.json'), \MBsoft\Settings\ConfigFormat::JSON);
 
 echo $loadedSettings->get('app.name'); // Outputs: "My Application"
 ```
