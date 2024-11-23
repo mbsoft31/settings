@@ -316,7 +316,7 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
         return json_encode($this->settings, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
     }
 
-    protected function serializeToYaml(): string
+    public function serializeToYaml(): string
     {
         if (!function_exists('yaml_emit')) {
             throw new RuntimeException("YAML support is not enabled.");
@@ -340,7 +340,7 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
         return json_decode($content, true, 512, JSON_THROW_ON_ERROR);
     }
 
-    protected static function deserializeFromYaml(string $content): array
+    public static function deserializeFromYaml(string $content): array
     {
         if (!function_exists('yaml_parse')) {
             throw new RuntimeException("YAML support is not enabled.");

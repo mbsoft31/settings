@@ -163,3 +163,92 @@ it('can create settings from environment variables', function () {
         ->and($settings->get('version'))->toBe('1.0')
         ->and($settings->get('nonexistent', 'default'))->toBe('default');
 });
+
+
+//
+it('creates configuration from a Closure', function () {
+    $settings = Settings::from(fn() => ['key' => 'value'], false);
+    expect($settings->get('key'))->toBe('value');
+});
+
+it('throws exception if Closure does not return an array', function () {
+    Settings::from(fn() => 'invalid', false);
+})->throws(InvalidConfigurationException::class);
+
+it('creates configuration from an array', function () {
+    $settings = Settings::from(['key' => 'value'], true);
+    expect($settings->get('key'))->toBe('value');
+});
+
+it('creates configuration from a PHP array file', function () {
+    $path = __DIR__ . '/fixtures/settings.php';
+    file_put_contents($path, "<?php return ['key' => 'value'];");
+
+    $settings = Settings::from($path, true);
+    expect($settings->get('key'))->toBe('value');
+
+    unlink($path);
+});
+
+it('throws exception for invalid source', function () {
+    Settings::from('nonexistent.php', false);
+})->throws(InvalidConfigurationException::class);
+
+
+//
+it('removes a value with dot notation', function () {
+    $data = ['parent' => ['child' => 'value']];
+    $settings = new Settings($data);
+
+    $result = $settings->remove('parent.child');
+    expect($result)->toBeTrue();
+    expect($settings->all())->toBe(['parent' => []]);
+});
+
+it('does not remove a non-existent value', function () {
+    $data = ['parent' => ['child' => 'value']];
+    $settings = new Settings($data);
+
+    $result = $settings->remove('parent.nonexistent');
+    expect($result)->toBeFalse();
+});
+
+
+it('serializes settings to YAML', function () {
+    if (!function_exists('yaml_emit')) {
+        $this->markTestSkipped('YAML support is not enabled.');
+    }
+
+    $settings = new Settings(['key' => 'value']);
+    $yaml = $settings->serializeToYaml();
+
+    expect($yaml)->toContain('key: value');
+});
+
+it('throws exception if YAML support is not enabled', function () {
+    if (function_exists('yaml_emit')) {
+        $this->markTestSkipped('YAML support is enabled.');
+    }
+
+    $settings = new Settings(['key' => 'value']);
+    $settings->serializeToYaml();
+})->throws(RuntimeException::class);
+
+it('deserializes YAML to an array', function () {
+    if (!function_exists('yaml_parse')) {
+        $this->markTestSkipped('YAML support is not enabled.');
+    }
+
+    $yaml = "key: value\n";
+    $data = Settings::deserializeFromYaml($yaml);
+
+    expect($data)->toBe(['key' => 'value']);
+});
+
+it('throws exception if YAML support is not enabled for deserialize', function () {
+    if (function_exists('yaml_parse')) {
+        $this->markTestSkipped('YAML support is enabled.');
+    }
+
+    Settings::deserializeFromYaml("key: value\n");
+})->throws(RuntimeException::class);
