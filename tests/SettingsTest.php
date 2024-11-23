@@ -109,7 +109,6 @@ it( 'can save and load settings as PHP',/**
     $settings->saveToFile($path, ConfigFormat::PHP);
 
     $loadedSettings = Settings::loadFromFile($path, ConfigFormat::PHP);
-    dump("dumped", $loadedSettings->all(),$loadedSettings->get('app.name'));
     expect($loadedSettings->get('app.name'))->toBe('Settings app');
 
     unlink($path);
@@ -120,4 +119,47 @@ it('supports dot notation for nested keys', function () {
     expect($settings->get('app.name'))->toBe('Settings app');
     $settings->set('app.version', '1.0');
     expect($settings->get('app.version'))->toBe('1.0');
+});
+
+
+it('can get a scoped configuration value', function () {
+    $settings = new Settings(['app' => ['name' => 'MyApp']]);
+    expect($settings->getScoped('app', 'name'))->toBe('MyApp')
+        ->and($settings->getScoped('app', 'nonexistent', 'default'))->toBe('default');
+});
+
+it('can set a scoped configuration value', function () {
+    $settings = new Settings(['app' => ['name' => 'MyApp']]);
+    $settings->setScoped('app', 'version', '1.0');
+    expect($settings->getScoped('app', 'version'))->toBe('1.0');
+});
+
+it('can check if a scoped configuration key exists', function () {
+    $settings = new Settings(['app' => ['name' => 'MyApp']]);
+    expect($settings->hasScoped('app', 'name'))->toBeTrue()
+        ->and($settings->hasScoped('app', 'nonexistent'))->toBeFalse();
+});
+
+it('can cache a configuration value', function () {
+    $settings = new Settings(['app' => ['name' => 'MyApp']]);
+    expect($settings->getCached('app.name'))->toBe('MyApp')
+        ->and($settings->getCached('app.nonexistent', 'default'))->toBe('default');
+});
+
+it('can retrieve a typed configuration value', function () {
+    $settings = new Settings(['value' => '123', 'flag' => '1', 'name' => 'test']);
+    expect($settings->getTyped('value', 'int'))->toBe(123)
+        ->and($settings->getTyped('flag', 'bool'))->toBeTrue()
+        ->and($settings->getTyped('name', 'string'))->toBe('test')
+        ->and($settings->getTyped('nonexistent', 'int', 0))->toBe(0);
+});
+
+it('can create settings from environment variables', function () {
+    putenv('APP_NAME=MyApp');
+    putenv('APP_VERSION=1.0');
+
+    $settings = Settings::fromEnvironment(['name', 'version'], 'APP_');
+    expect($settings->get('name'))->toBe('MyApp')
+        ->and($settings->get('version'))->toBe('1.0')
+        ->and($settings->get('nonexistent', 'default'))->toBe('default');
 });
