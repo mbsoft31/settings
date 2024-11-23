@@ -5,6 +5,26 @@ use MBsoft\Settings\Settings;
 use MBsoft\Settings\Enums\ConfigFormat;
 use MBsoft\Settings\Exceptions\FileDoesNotExistException;
 
+beforeEach(function () {
+    $this->fixturePath = __DIR__ . '/fixtures';
+    if (!is_dir($this->fixturePath)) {
+        mkdir($this->fixturePath, 0777, true);
+    }
+});
+
+afterEach(function () {
+    // Clean up fixture files after each test
+    $files = glob($this->fixturePath . '/*');
+    foreach ($files as $file) {
+        if (is_file($file)) {
+            unlink($file);
+        }
+    }
+    if (is_dir($this->fixturePath)) {
+        rmdir($this->fixturePath);
+    }
+});
+
 it('can retrieve a value by key', function () {
     $settings = new Settings(['app.name' => 'Settings app']);
     expect($settings->get('app.name'))->toBe('Settings app');
