@@ -2,18 +2,18 @@
 
 namespace MBsoft\Settings;
 
-use Closure;
 use InvalidArgumentException;
-use JsonException;
 use MBsoft\Settings\Contracts\ConfigurationFactoryInterface;
 use MBsoft\Settings\Contracts\ConfigurationInterface;
-use MBsoft\Settings\Enums\ConfigFormat;
-use MBsoft\Settings\Exceptions\FileDoesNotExistException;
-use MBsoft\Settings\Exceptions\InvalidConfigurationException;
+use MBsoft\Settings\Traits\ConfigFactoryTrait;
+use MBsoft\Settings\Traits\FileOperationsTrait;
 use RuntimeException;
 
 class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
 {
+    use ConfigFactoryTrait;
+    use FileOperationsTrait;
+
     protected array $settings = [];
     protected bool $immutable;
     protected array $cache = [];
@@ -134,57 +134,6 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
         $this->validators[$key] = $validator;
     }
 
-    /**
-     * Factory Methods
-     */
-    public static function fromArray(array $data, bool $immutable = false): static
-    {
-        return new static($data, $immutable);
-    }
-
-    /**
-     * @throws FileDoesNotExistException
-     * @throws InvalidConfigurationException
-     */
-    public static function fromPhpArrayFile(string $path, bool $immutable = false): static
-    {
-        if (!file_exists($path)) {
-            throw new FileDoesNotExistException("File does not exist: $path");
-        }
-
-        $data = include $path;
-        if (!is_array($data)) {
-            throw new InvalidConfigurationException("File must return an array: $path");
-        }
-
-        return new static($data, $immutable);
-    }
-
-    /**
-     * @throws FileDoesNotExistException
-     * @throws InvalidConfigurationException
-     */
-    public static function from(string|array|Closure $source, bool $immutable = false): static
-    {
-        if (is_callable($source)) {
-            $data = call_user_func($source);
-            if (!is_array($data)) {
-                throw new InvalidConfigurationException("Closure must return an array.");
-            }
-            return static::fromArray($data, $immutable);
-        }
-
-        if (is_array($source)) {
-            return static::fromArray($source, $immutable);
-        }
-
-        if (is_string($source) && file_exists($source)) {
-            return static::fromPhpArrayFile($source, $immutable);
-        }
-
-        throw new InvalidConfigurationException("Invalid configuration source: $source");
-    }
-
     public static function fromEnvironment(array $keys, string $prefix = '', bool $immutable = false): static
     {
         $settings = [];
@@ -257,94 +206,5 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
             }
         }
         return $result;
-    }
-
-    /**
-     * Save configurations to a file.
-     *
-     * @throws RuntimeException|JsonException If saving fails.
-     */
-    public function saveToFile(string $path, ConfigFormat $format): bool
-    {
-        $content = match ($format) {
-            ConfigFormat::PHP => $this->serializeToPhp(),
-            ConfigFormat::JSON => $this->serializeToJson(),
-            ConfigFormat::YAML => $this->serializeToYaml(),
-        };
-
-        if (file_put_contents($path, $content) === false) {
-            throw new RuntimeException("Failed to save configuration to file: $path");
-        }
-
-        return true;
-    }
-
-    /**
-     * Load configurations from a file.
-     *
-     * @throws RuntimeException|JsonException If loading fails or the format is invalid.
-     */
-    public static function loadFromFile(string $path, ConfigFormat $format, bool $immutable = false): static
-    {
-        if (!file_exists($path)) {
-            throw new RuntimeException("Configuration file does not exist: $path");
-        }
-
-        $content = file_get_contents($path);
-        $data = match ($format) {
-            ConfigFormat::PHP => self::deserializeFromPhp($content),
-            ConfigFormat::JSON => self::deserializeFromJson($content),
-            ConfigFormat::YAML => self::deserializeFromYaml($content),
-        };
-
-        return new static($data, $immutable);
-    }
-
-    /**
-     * Serialization Methods
-     */
-    protected function serializeToPhp(): string
-    {
-        return "<?php\n\nreturn " . var_export($this->settings, true) . ";\n";
-    }
-
-    /**
-     * @throws JsonException
-     */
-    protected function serializeToJson(): string
-    {
-        return json_encode($this->settings, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
-    }
-
-    public function serializeToYaml(): string
-    {
-        if (!function_exists('yaml_emit')) {
-            throw new RuntimeException("YAML support is not enabled.");
-        }
-        return yaml_emit($this->settings);
-    }
-
-    /**
-     * Deserialization Methods
-     */
-    protected static function deserializeFromPhp(string $content): array
-    {
-        return eval('?>' . $content);
-    }
-
-    /**
-     * @throws JsonException
-     */
-    protected static function deserializeFromJson(string $content): array
-    {
-        return json_decode($content, true, 512, JSON_THROW_ON_ERROR);
-    }
-
-    public static function deserializeFromYaml(string $content): array
-    {
-        if (!function_exists('yaml_parse')) {
-            throw new RuntimeException("YAML support is not enabled.");
-        }
-        return yaml_parse($content);
     }
 }
