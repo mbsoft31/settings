@@ -2,9 +2,9 @@
 
 namespace MBsoft\Settings;
 
+use MBsoft\Settings\Commands\SettingsCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use MBsoft\Settings\Commands\SettingsCommand;
 
 class SettingsServiceProvider extends PackageServiceProvider
 {

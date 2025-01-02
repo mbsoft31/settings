@@ -2,6 +2,4 @@
 
 namespace MBsoft\Settings\Exceptions;
 
-class FileDoesNotExistException extends \Exception
-{
-}
+class FileDoesNotExistException extends \Exception {}

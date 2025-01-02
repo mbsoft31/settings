@@ -1,20 +1,20 @@
 <?php
 
-use MBsoft\Settings\Exceptions\InvalidConfigurationException;
-use MBsoft\Settings\Settings;
 use MBsoft\Settings\Enums\ConfigFormat;
 use MBsoft\Settings\Exceptions\FileDoesNotExistException;
+use MBsoft\Settings\Exceptions\InvalidConfigurationException;
+use MBsoft\Settings\Settings;
 
 beforeEach(function () {
-    $this->fixturePath = __DIR__ . '/fixtures';
-    if (!is_dir($this->fixturePath)) {
+    $this->fixturePath = __DIR__.'/fixtures';
+    if (! is_dir($this->fixturePath)) {
         mkdir($this->fixturePath, 0777, true);
     }
 });
 
 afterEach(function () {
     // Clean up fixture files after each test
-    $files = glob($this->fixturePath . '/*');
+    $files = glob($this->fixturePath.'/*');
     foreach ($files as $file) {
         if (is_file($file)) {
             unlink($file);
@@ -31,12 +31,12 @@ it('can retrieve a value by key', function () {
 });
 
 it('returns default value when key does not exist', function () {
-    $settings = new Settings();
+    $settings = new Settings;
     expect($settings->get('nonexistent', 'default'))->toBe('default');
 });
 
 it('can set a value by key', function () {
-    $settings = new Settings();
+    $settings = new Settings;
     $settings->set('app.version', '1.0');
     expect($settings->get('app.version'))->toBe('1.0');
 });
@@ -67,8 +67,8 @@ it('can retrieve all settings', function () {
 });
 
 it('can validate a value before setting it', function () {
-    $settings = new Settings();
-    $settings->addValidator('age', fn($value) => is_int($value) && $value > 0);
+    $settings = new Settings;
+    $settings->addValidator('age', fn ($value) => is_int($value) && $value > 0);
 
     $settings->set('age', 30);
     expect($settings->get('age'))->toBe(30);
@@ -86,11 +86,11 @@ it('can load settings from an array', function () {
     expect($settings->get('app.name'))->toBe('Settings app');
 });
 
-it( 'can load settings from a PHP array file', /**
+it('can load settings from a PHP array file', /**
  * @throws InvalidConfigurationException
  * @throws FileDoesNotExistException
  */ function () {
-    $path = __DIR__ . '/fixtures/settings.php';
+    $path = __DIR__.'/fixtures/settings.php';
     file_put_contents($path, "<?php return ['app.name' => 'Settings app'];");
 
     $settings = Settings::fromPhpArrayFile($path);
@@ -99,17 +99,17 @@ it( 'can load settings from a PHP array file', /**
     unlink($path);
 });
 
-it( 'throws an exception when loading from a non-existent file',/**
+it('throws an exception when loading from a non-existent file', /**
  * @throws InvalidConfigurationException
  * @throws FileDoesNotExistException
  */ function () {
     Settings::fromPhpArrayFile('/invalid/path');
 })->throws(FileDoesNotExistException::class);
 
-it( 'can save and load settings as JSON',/**
+it('can save and load settings as JSON', /**
  * @throws JsonException
  */ function () {
-    $path = __DIR__ . '/fixtures/settings.json';
+    $path = __DIR__.'/fixtures/settings.json';
 
     $settings = new Settings(['app.name' => 'Settings app']);
     $settings->saveToFile($path, ConfigFormat::JSON);
@@ -120,10 +120,10 @@ it( 'can save and load settings as JSON',/**
     unlink($path);
 });
 
-it( 'can save and load settings as PHP',/**
+it('can save and load settings as PHP', /**
  * @throws JsonException
  */ function () {
-    $path = __DIR__ . '/fixtures/settings.php';
+    $path = __DIR__.'/fixtures/settings.php';
 
     $settings = new Settings(['app.name' => 'Settings app']);
     $settings->saveToFile($path, ConfigFormat::PHP);
@@ -140,7 +140,6 @@ it('supports dot notation for nested keys', function () {
     $settings->set('app.version', '1.0');
     expect($settings->get('app.version'))->toBe('1.0');
 });
-
 
 it('can get a scoped configuration value', function () {
     $settings = new Settings(['app' => ['name' => 'MyApp']]);
@@ -184,15 +183,14 @@ it('can create settings from environment variables', function () {
         ->and($settings->get('nonexistent', 'default'))->toBe('default');
 });
 
-
 //
 it('creates configuration from a Closure', function () {
-    $settings = Settings::from(fn() => ['key' => 'value'], false);
+    $settings = Settings::from(fn () => ['key' => 'value'], false);
     expect($settings->get('key'))->toBe('value');
 });
 
 it('throws exception if Closure does not return an array', function () {
-    Settings::from(fn() => 'invalid', false);
+    Settings::from(fn () => 'invalid', false);
 })->throws(InvalidConfigurationException::class);
 
 it('creates configuration from an array', function () {
@@ -201,7 +199,7 @@ it('creates configuration from an array', function () {
 });
 
 it('creates configuration from a PHP array file', function () {
-    $path = __DIR__ . '/fixtures/settings.php';
+    $path = __DIR__.'/fixtures/settings.php';
     file_put_contents($path, "<?php return ['key' => 'value'];");
 
     $settings = Settings::from($path, true);
@@ -213,7 +211,6 @@ it('creates configuration from a PHP array file', function () {
 it('throws exception for invalid source', function () {
     Settings::from('nonexistent.php', false);
 })->throws(InvalidConfigurationException::class);
-
 
 //
 it('removes a value with dot notation', function () {
@@ -233,9 +230,8 @@ it('does not remove a non-existent value', function () {
     expect($result)->toBeFalse();
 });
 
-
 it('serializes settings to YAML', function () {
-    if (!function_exists('yaml_emit')) {
+    if (! function_exists('yaml_emit')) {
         $this->markTestSkipped('YAML support is not enabled.');
     }
 
@@ -255,7 +251,7 @@ it('throws exception if YAML support is not enabled', function () {
 })->throws(RuntimeException::class);
 
 it('deserializes YAML to an array', function () {
-    if (!function_exists('yaml_parse')) {
+    if (! function_exists('yaml_parse')) {
         $this->markTestSkipped('YAML support is not enabled.');
     }
 

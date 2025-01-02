@@ -2,6 +2,4 @@
 
 namespace MBsoft\Settings\Exceptions;
 
-class InvalidConfigurationException extends \Exception
-{
-}
+class InvalidConfigurationException extends \Exception {}

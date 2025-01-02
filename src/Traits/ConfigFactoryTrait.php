@@ -2,13 +2,12 @@
 
 namespace MBsoft\Settings\Traits;
 
+use Closure;
 use MBsoft\Settings\Exceptions\FileDoesNotExistException;
 use MBsoft\Settings\Exceptions\InvalidConfigurationException;
-use Closure;
 
 trait ConfigFactoryTrait
 {
-
     /**
      * Factory Methods
      */
@@ -23,12 +22,12 @@ trait ConfigFactoryTrait
      */
     public static function fromPhpArrayFile(string $path, bool $immutable = false): static
     {
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             throw new FileDoesNotExistException("File does not exist: $path");
         }
 
         $data = include $path;
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             throw new InvalidConfigurationException("File must return an array: $path");
         }
 
@@ -43,9 +42,10 @@ trait ConfigFactoryTrait
     {
         if (is_callable($source)) {
             $data = call_user_func($source);
-            if (!is_array($data)) {
-                throw new InvalidConfigurationException("Closure must return an array.");
+            if (! is_array($data)) {
+                throw new InvalidConfigurationException('Closure must return an array.');
             }
+
             return static::fromArray($data, $immutable);
         }
 
@@ -59,5 +59,4 @@ trait ConfigFactoryTrait
 
         throw new InvalidConfigurationException("Invalid configuration source: $source");
     }
-
 }

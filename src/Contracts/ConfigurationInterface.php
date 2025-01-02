@@ -7,8 +7,8 @@ interface ConfigurationInterface
     /**
      * Get a configuration value by key.
      *
-     * @param string $key The configuration key.
-     * @param mixed|null $default Default value if key is not found.
+     * @param  string  $key  The configuration key.
+     * @param  mixed|null  $default  Default value if key is not found.
      * @return mixed The configuration value or default.
      */
     public function get(string $key, mixed $default = null): mixed;
@@ -16,8 +16,8 @@ interface ConfigurationInterface
     /**
      * Set a configuration value.
      *
-     * @param string $key The configuration key.
-     * @param mixed $value The value to set.
+     * @param  string  $key  The configuration key.
+     * @param  mixed  $value  The value to set.
      * @return bool True on success.
      */
     public function set(string $key, mixed $value): bool;
@@ -25,7 +25,7 @@ interface ConfigurationInterface
     /**
      * Check if a configuration key exists.
      *
-     * @param string $key The configuration key.
+     * @param  string  $key  The configuration key.
      * @return bool True if the key exists.
      */
     public function has(string $key): bool;
@@ -33,7 +33,7 @@ interface ConfigurationInterface
     /**
      * Remove a configuration value by key.
      *
-     * @param string $key The configuration key.
+     * @param  string  $key  The configuration key.
      * @return bool True if the key was removed.
      */
     public function remove(string $key): bool;

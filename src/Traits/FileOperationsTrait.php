@@ -35,7 +35,7 @@ trait FileOperationsTrait
      */
     public static function loadFromFile(string $path, ConfigFormat $format, bool $immutable = false): static
     {
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             throw new RuntimeException("Configuration file does not exist: $path");
         }
 
@@ -54,7 +54,7 @@ trait FileOperationsTrait
      */
     protected function serializeToPhp(): string
     {
-        return "<?php\n\nreturn " . var_export($this->settings, true) . ";\n";
+        return "<?php\n\nreturn ".var_export($this->settings, true).";\n";
     }
 
     /**
@@ -67,9 +67,10 @@ trait FileOperationsTrait
 
     public function serializeToYaml(): string
     {
-        if (!function_exists('yaml_emit')) {
-            throw new RuntimeException("YAML support is not enabled.");
+        if (! function_exists('yaml_emit')) {
+            throw new RuntimeException('YAML support is not enabled.');
         }
+
         return yaml_emit($this->settings);
     }
 
@@ -78,7 +79,7 @@ trait FileOperationsTrait
      */
     protected static function deserializeFromPhp(string $content): array
     {
-        return eval('?>' . $content);
+        return eval('?>'.$content);
     }
 
     /**
@@ -91,9 +92,10 @@ trait FileOperationsTrait
 
     public static function deserializeFromYaml(string $content): array
     {
-        if (!function_exists('yaml_parse')) {
-            throw new RuntimeException("YAML support is not enabled.");
+        if (! function_exists('yaml_parse')) {
+            throw new RuntimeException('YAML support is not enabled.');
         }
+
         return yaml_parse($content);
     }
 }

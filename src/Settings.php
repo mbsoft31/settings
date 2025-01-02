@@ -9,14 +9,17 @@ use MBsoft\Settings\Traits\ConfigFactoryTrait;
 use MBsoft\Settings\Traits\FileOperationsTrait;
 use RuntimeException;
 
-class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
+class Settings implements ConfigurationFactoryInterface, ConfigurationInterface
 {
     use ConfigFactoryTrait;
     use FileOperationsTrait;
 
     protected array $settings = [];
+
     protected bool $immutable;
+
     protected array $cache = [];
+
     protected array $validators = [];
 
     public function __construct(array $settings = [], bool $immutable = false)
@@ -30,9 +33,10 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
      */
     public function get(string $key, mixed $default = null): mixed
     {
-        if (key_exists($key, $this->settings)) {
+        if (array_key_exists($key, $this->settings)) {
             return $this->settings[$key];
         }
+
         return $this->resolveDotNotation($key, $this->settings) ?? $default;
     }
 
@@ -42,19 +46,21 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
             throw new RuntimeException('Cannot modify immutable configuration.');
         }
 
-        if (isset($this->validators[$key]) && !$this->validators[$key]($value)) {
+        if (isset($this->validators[$key]) && ! $this->validators[$key]($value)) {
             throw new InvalidArgumentException("Invalid value for key: $key");
         }
 
         $this->settings = $this->setDotNotation($key, $value, $this->settings);
+
         return true;
     }
 
     public function has(string $key): bool
     {
-        if (key_exists($key, $this->settings)) {
+        if (array_key_exists($key, $this->settings)) {
             return true;
         }
+
         return $this->resolveDotNotation($key, $this->settings) !== null;
     }
 
@@ -64,8 +70,9 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
             throw new RuntimeException('Cannot modify immutable configuration.');
         }
 
-        if (key_exists($key, $this->settings)) {
+        if (array_key_exists($key, $this->settings)) {
             unset($this->settings[$key]);
+
             return true;
         }
 
@@ -105,9 +112,10 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
      */
     public function getCached(string $key, mixed $default = null): mixed
     {
-        if (!array_key_exists($key, $this->cache)) {
+        if (! array_key_exists($key, $this->cache)) {
             $this->cache[$key] = $this->get($key, $default);
         }
+
         return $this->cache[$key];
     }
 
@@ -117,11 +125,12 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
     public function getTyped(string $key, string $type, mixed $default = null): mixed
     {
         $value = $this->get($key, $default);
+
         return match ($type) {
-            'int' => (int)$value,
-            'float' => (float)$value,
-            'bool' => (bool)$value,
-            'string' => (string)$value,
+            'int' => (int) $value,
+            'float' => (float) $value,
+            'bool' => (bool) $value,
+            'string' => (string) $value,
             default => $value,
         };
     }
@@ -138,9 +147,10 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
     {
         $settings = [];
         foreach ($keys as $key) {
-            $envKey = strtoupper($prefix . $key);
+            $envKey = strtoupper($prefix.$key);
             $settings[$key] = getenv($envKey) ?: null;
         }
+
         return new static($settings, $immutable);
     }
 
@@ -151,11 +161,12 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
     {
         $keys = explode('.', $key);
         foreach ($keys as $subKey) {
-            if (!is_array($data) || !array_key_exists($subKey, $data)) {
+            if (! is_array($data) || ! array_key_exists($subKey, $data)) {
                 return null;
             }
             $data = $data[$subKey];
         }
+
         return $data;
     }
 
@@ -164,12 +175,13 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
         $keys = explode('.', $key);
         $current = &$data;
         foreach ($keys as $subKey) {
-            if (!isset($current[$subKey]) || !is_array($current[$subKey])) {
+            if (! isset($current[$subKey]) || ! is_array($current[$subKey])) {
                 $current[$subKey] = [];
             }
             $current = &$current[$subKey];
         }
         $current = $value;
+
         return $data;
     }
 
@@ -180,7 +192,7 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
         $current = &$data;
 
         foreach ($keys as $subKey) {
-            if (!isset($current[$subKey]) || !is_array($current[$subKey])) {
+            if (! isset($current[$subKey]) || ! is_array($current[$subKey])) {
                 return false;
             }
             $current = &$current[$subKey];
@@ -188,6 +200,7 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
 
         if (isset($current[$lastKey])) {
             unset($current[$lastKey]);
+
             return true;
         }
 
@@ -205,6 +218,7 @@ class Settings  implements ConfigurationInterface, ConfigurationFactoryInterface
                 $result[$fullKey] = $value;
             }
         }
+
         return $result;
     }
 }
